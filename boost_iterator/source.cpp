@@ -27,8 +27,10 @@ int main()
 	for_each(sv2.begin(), sv2.end(), cout << _1 << " ");
 	cout << endl;
 
+	sv_t sv3(li.begin(), li.end(), _1 > _2); // (4)
 	sv_t::const_iterator i = sv2.begin();
-	i += 2; // (4)
+
+	i += 2; // (5)
 	cout << *i << endl;
 	cout << i - sv2.begin() << endl;
 
