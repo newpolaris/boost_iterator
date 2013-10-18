@@ -34,12 +34,20 @@ int main()
 	cout << *i << endl;
 	cout << i - sv2.begin() << endl;
 
+	int data[] = { 3, 0, 1, 4, 2 };
+	int const N = sizeof(data) / sizeof(data[0]);
+
+	sorted_view<int*> sv4(data, data+N);
+	for_each(sv4.begin(), sv4.end(), cout << _1 << " ");
+	cout << endl;
+
 	// output
 	// 3 0 1 4 2
 	// 0 1 2 3 4
 	// 4 3 2 1 0
 	// 2 
 	// 2
+	// 0 1 2 3 4
 
 	return 0;
 }
