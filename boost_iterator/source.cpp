@@ -17,7 +17,7 @@ int main()
 	for_each(li.begin(), li.end(), cout << _1 << " ");
 	cout << endl;
 
-	typedef sourted_view<list<int>::iterator> sv_t; // (1)
+	typedef sorted_view<list<int>::iterator> sv_t; // (1)
 
 	sv_t sv1(li.begin(), li.end());
 	for_each(sv1.begin(), sv1.end(), cout << _1 << " "); // (2)
