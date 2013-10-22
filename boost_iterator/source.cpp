@@ -1,12 +1,11 @@
+#include <boost/lambda/lambda.hpp>
 #include <boost/function.hpp>
 #include <list>
 #include <iostream>
 #include <vector>
 #include <functional>
 #include <boost/iterator/iterator_facade.hpp>
-#include <boost/iterator/iterator_adaptor.hpp>
 #include <boost/range/algorithm/for_each.hpp>
-#include <boost/lambda/lambda.hpp>
 
 template <typename T>
 struct COMP
@@ -26,23 +25,38 @@ class sorted_view
 
 public:
 	class sv_iterator
-		: public boost::iterator_adaptor<
+		: public boost::iterator_facade<
 		sv_iterator,
-		typename std::vector<C_iter>::const_iterator,
-		C_value_type const
+		C_value_type const,
+		boost::random_access_traversal_tag
 		>
 	{
-		typedef typename sv_iterator::iterator_adaptor_ super_t;
-	private:
-		friend class boost::iterator_core_access;
-
+		typedef typename std::vector<C_iter>::const_iterator S_const_iter;
 	public:
-		explicit sv_iterator(typename sv_iterator::base_type p)
-			: super_t(p) {}
+		explicit sv_iterator(S_const_iter p)
+			: curr_(p) {}
+
+		void increment() { ++curr_; }
+		void decrement() { --curr_; }
+		void advance(typename sv_iterator::difference_type n) {
+			std::advance(curr_, n);
+		}
+
+		typename sv_iterator::difference_type distance_to(sv_iterator const& to) const {
+			return std::distance(curr_, to.curr_);
+		}
+
+		bool equal(sv_iterator const& other) const
+		{
+			return curr_ == other.curr_;
+		}
 
 		C_value_type const& dereference() const {
-			return **(this->bae_reference());
+			return **curr_;
 		}
+
+	private:
+		S_const_iter curr_;
 	};
 
 	typedef const sv_iterator const_iterator;
@@ -102,11 +116,9 @@ int main()
 	sv_t sv3(li.begin(), li.end(), *_1 > *_2); // (4)
 	sv_t::const_iterator i = sv2.begin();
 
-	/*
 	i += 2; // (5)
 	cout << *i << endl;
 	cout << i - sv2.begin() << endl;
-	*/
 
 	int data[] = { 3, 0, 1, 4, 2 };
 	int const N = sizeof(data) / sizeof(data[0]);
