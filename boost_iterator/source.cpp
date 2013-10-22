@@ -1,6 +1,59 @@
 #include <boost/lambda/lambda.hpp>
+#include <boost/function.hpp>
 #include <list>
 #include <iostream>
+#include <vector>
+#include <functional>
+
+template <typename T>
+struct COMP
+{
+	bool operator()(T lh, T rh)
+	{
+		return *lh > *rh;
+	}
+};
+
+template <class Iter>
+class sorted_view
+{
+	typedef Iter C_iter;
+	typedef typename boost::iterator_value<C_iter>::type C_value_type;
+	typedef boost::function<bool (C_value_type const&, C_value_type const&)> Compare;
+
+public:
+	typedef typename std::vector<C_iter>::const_iterator const_iterator;
+
+	sorted_view(C_iter first, C_iter last, Compare comp = std::less<C_value_type>())
+		: comp_(comp) {
+#if 0
+		using namespace boost::lambda;
+#else
+		using std::bind;
+		using std::placeholders::_1;
+		using std::placeholders::_2;
+#endif
+
+		for (C_iter i=first; i != last; ++i) {
+			data_.push_back(i);
+		}
+
+		std::sort(data_.begin(), data_.end(), std::bind(comp_, *_1, *_2));
+		// std::sort(data_.begin(), data_.end(), COMP<C_iter>());
+	}
+
+	const_iterator begin() const {
+		return data_.begin();
+	}
+
+	const_iterator end() const {
+		return data_.end();
+	}
+
+private:
+	std::vector<C_iter> data_;
+	Compare comp_;
+};
 
 int main()
 {
@@ -20,25 +73,26 @@ int main()
 	typedef sorted_view<list<int>::iterator> sv_t; // (1)
 
 	sv_t sv1(li.begin(), li.end());
-	for_each(sv1.begin(), sv1.end(), cout << _1 << " "); // (2)
+	/*
+	for_each(sv1.begin(), sv1.end(), cout << *_1 << " "); // (2)
 	cout << endl;
 
-	sv_t sv2(li.begin(), li.end(), greater<int>()); // (3)
-	for_each(sv2.begin(), sv2.end(), cout << _1 << " ");
+	sv_t sv2(li.begin(), li.end(), std::greater<int>()); // (3)
+	for_each(sv2.begin(), sv2.end(), cout << *_1 << " ");
 	cout << endl;
 
-	sv_t sv3(li.begin(), li.end(), _1 > _2); // (4)
+	sv_t sv3(li.begin(), li.end(), *_1 > *_2); // (4)
 	sv_t::const_iterator i = sv2.begin();
 
 	i += 2; // (5)
-	cout << *i << endl;
+	cout << **i << endl;
 	cout << i - sv2.begin() << endl;
 
 	int data[] = { 3, 0, 1, 4, 2 };
 	int const N = sizeof(data) / sizeof(data[0]);
 
 	sorted_view<int*> sv4(data, data+N);
-	for_each(sv4.begin(), sv4.end(), cout << _1 << " ");
+	for_each(sv4.begin(), sv4.end(), cout << *_1 << " ");
 	cout << endl;
 
 	// output
@@ -48,6 +102,7 @@ int main()
 	// 2 
 	// 2
 	// 0 1 2 3 4
+	*/
 
 	return 0;
 }
